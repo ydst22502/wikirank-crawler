@@ -1,0 +1,10 @@
+This program illustrates some of the main features of Python. 
+First, whitespace is used to nest lines of code, thus the line starting with if falls inside the scope of the previous line starting with for; 
+this ensures that the ing test is performed for each word. Second, Python is object-oriented; 
+each variable is an entity that has certain defined attributes and methods. 
+For example, the value of the variable line is more than a sequence of characters. 
+It is a string object that has a "method" (or operation) called split() that we can use to break a line into its words. 
+To apply a method to an object, we write the object name, followed by a period, followed by the method name, i.e. line.split(). 
+Third, methods have arguments expressed inside parentheses. For instance, in the example, word.endswith('ing') had the argument 'ing' to indicate that we wanted words ending with ing and not something else. 
+Finally — and most importantly — Python is highly readable, so much so that it is fairly easy to guess what the program does even if you have never written a program before.
+

@@ -30,7 +30,6 @@ for page in range(total_page):
 	tempStr = ''
 	for i in range(len(ls)):
 		tempStr += re.findall('.*?>(.*?)<', ls[i]['harmonic'])[0] +'\n'
-		#print re.findall('.*?>(.*?)<', ls[i]['harmonic'])[0]
 		#fp.write(re.findall('.*?>(.*?)<', ls[i]['harmonic'])[0].encode('utf-8')+'\n')
 	fp.write(tempStr.encode('utf-8'))
 

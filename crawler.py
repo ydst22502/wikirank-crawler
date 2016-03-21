@@ -3,6 +3,7 @@ import urllib2
 import re
 from bs4 import BeautifulSoup
 import time
+import nltk
 
 #return the paragraph 1 of the Wiki article of keyword
 def wiki(keyword = 'Wiki'):
@@ -28,7 +29,9 @@ def wiki(keyword = 'Wiki'):
 	the_page = the_page[:50000]
 	#unicodePage = the_page.decode('utf-8')
 
-	rePattern = '<div.*?id="mw-content-text".*?<table class="infobox.*?</table>.*?<p>(.*?)</p>.*?'+'|'+'<div.*?id="mw-content-text".*?<p>(.*?<b>'+keyword+'</b>.*?)</p>.*?'
+	rePattern = '<div.*?id="mw-content-text".*?<table class="infobox.*?</table>.*?<p>(.*?)</p>.*?'+\
+	'|'+'<div.*?id="mw-content-text".*?<p>(.*?<b>'+keyword+'</b>.*?)</p>.*?'
+
 	p1 = re.findall(rePattern, the_page, re.S|re.I)
 	if len(p1) == 0:
 		return 'NONE MATCH'
@@ -52,16 +55,44 @@ def wiki(keyword = 'Wiki'):
 
 	return p1_without_slash
 
-fp = open('keywords_1000.dat', 'r')
+def isWho(paragraph):
+	pps = ['he', 'his', 'him', 'she', 'her']
+	tokens = nltk.word_tokenize(paragraph)
+	paragraph_token_set = set(tokens)
+	for pp in pps:
+		if pp in paragraph_token_set:
+			return True
+	return False
+
+def question_generation_who_what(paragraph, keyword):
+	sent_tokens = nltk.sent_tokenize(paragraph)
+	if isWho(paragraph):
+		print 'Q: Who is ' + keyword + '?'
+	else:
+		print 'Q: What is ' + keyword + '?'
+	print 'A: ' + sent_tokens[0]
+	print
+	
+
+fp = open('keywords_50000.dat', 'r')
 number_of_kewords = int(fp.readline()[:-1])
 keywords = []
 for n in range(number_of_kewords):
 	keywords.append(fp.readline()[:-1])
 
-for n in range(0,70):
+for n in range(968, 999):
 	print n, keywords[n]
-	print wiki(keywords[n]), '\n'
+	print
+	paragraph1 = wiki(keywords[n])
+	question_generation_who_what(paragraph1, keywords[n])
+	print paragraph1
+	print
+	print '**********************************************'
+	print
 	time.sleep(2)
+
+#Debug
+#print wiki('Justin Bieber')
 
 fp.close()
 

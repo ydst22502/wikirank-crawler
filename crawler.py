@@ -2,29 +2,84 @@ import urllib
 import urllib2
 import re
 from bs4 import BeautifulSoup
+import time
 
-keyword = 'English language'
-base_url = 'https://en.wikipedia.org/wiki/'
-url = base_url + keyword
-user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-values = {}
-headers = {'User-Agent' : user_agent}
-data = urllib.urlencode(values)
-request = urllib2.Request(url, data, headers)
-response = urllib2.urlopen(request)
-the_page = response.read()
-#unicodePage = the_page.decode('utf-8')
+#return the paragraph 1 of the Wiki article of keyword
+def wiki(keyword = 'Wiki'):
+	base_url = 'https://en.wikipedia.org/wiki/'
+	url = base_url + keyword
+	user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+	values = {}
+	#headers = {'User-Agent' : user_agent}
+	hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+       'Accept-Encoding': 'none',
+       'Accept-Language': 'en-US,en;q=0.8',
+       'Connection': 'keep-alive'}
+	data = urllib.urlencode(values)
+	request = urllib2.Request(url, data, hdr)
+	try:
+		response = urllib2.urlopen(request)
+	except urllib2.URLError, e:
+		print e.code
+		return 'URLError'
+	the_page = response.read()
+	the_page = the_page[:50000]
+	#unicodePage = the_page.decode('utf-8')
 
-p1 = re.findall('<div.*?id="mw-content-text".*?<p>(.*?)</p>.*?', the_page, re.S)
-raw_p1 = BeautifulSoup(p1[0], "lxml").get_text()
-#print raw_p1
+	rePattern = '<div.*?id="mw-content-text".*?<table class="infobox.*?</table>.*?<p>(.*?)</p>.*?'+'|'+'<div.*?id="mw-content-text".*?<p>(.*?<b>'+keyword+'</b>.*?)</p>.*?'
+	p1 = re.findall(rePattern, the_page, re.S|re.I)
+	if len(p1) == 0:
+		return 'NONE MATCH'
+	raw_p1 = BeautifulSoup(p1[0][0] + p1[0][1], "lxml").get_text()
+	#print raw_p1
 
-#remove [1][13]..
-pattern1 = re.compile(r'\[\d+\]')
-p1_without_bracket = pattern1.sub('', raw_p1)
+	#remove []..
+	pattern1 = re.compile(r'\[.+?\]')
+	p1_without_bracket = pattern1.sub('', raw_p1)
 
-#remove ()...
-pattern2 = re.compile(r'\s\(.+?\)')
-p1_without_parentheses = pattern2.sub('', p1_without_bracket)
+	#remove ()...
+	pattern2 = re.compile(r'\s\(.+?\)')
+	p1_without_parentheses = pattern2.sub('', p1_without_bracket)
 
-print p1_without_parentheses
+	#remove )...
+	p1_without_parentheses = p1_without_parentheses.replace(')', '')
+
+	#remove / / ...
+	pattern3 = re.compile(r'\W.*?\/.+?\/')
+	p1_without_slash = pattern3.sub('', p1_without_parentheses)
+
+	return p1_without_slash
+
+fp = open('keywords_1000.dat', 'r')
+number_of_kewords = int(fp.readline()[:-1])
+keywords = []
+for n in range(number_of_kewords):
+	keywords.append(fp.readline()[:-1])
+
+for n in range(0,70):
+	print n, keywords[n]
+	print wiki(keywords[n]), '\n'
+	time.sleep(2)
+
+fp.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
